@@ -40,5 +40,4 @@ If you want to play Bb tone, press `0` or `-` or `=` while pushing `1`.
 
 ## Play!
 
-https://d3vle0.github.io/ukulele-simulator  
-or you can clone this repository to play offline.
+Clone this repository and play offline.
