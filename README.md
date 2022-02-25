@@ -5,7 +5,8 @@
 </p>
 
 <p align="center">
-    <strong>Play ukulele in your browser!</strong>
+    <strong>Play ukulele in your browser!</strong><br>
+    <a href="https://github.com/D3vle0/ukulele-simulator/blob/main/README-ko.md">한국어 README</a>
 </p>
 
 ## How to play
