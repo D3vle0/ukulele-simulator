@@ -1,28 +1,171 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko" class="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="./img/favicon.ico">
-    <title>Ukulele</title>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/x-icon" href="./img/favicon.ico">
+  <link rel="stylesheet" href="./ukulele.css">
+  <title>Ukulele Simulator</title>
 </head>
-<style>
-    body {
-        background-color: #000;
-        text-align: center;
-    }
-
-    h1 {
-        color: #fff;
-        text-align: center;
-        font-size: 50px;
-        margin-top: 50px;
-    }
-</style>
 <body>
-    <h1>Ukulele Simulator</h1>
-    <img src="./img/favicon.ico" alt="" width="300px">
+  <div class="container">
+    <!-- shadcn/ui Navigation Bar -->
+    <header class="shadcn-nav">
+      <div class="nav-brand">
+        <img src="./img/favicon.ico" alt="Ukulele Icon">
+        <span class="brand-title">Ukulele Simulator</span>
+      </div>
+
+      <div class="nav-actions">
+        <!-- Fret Inversion Flip Switch (shadcn Switch Component) -->
+        <label class="switch-wrapper" title="프렛보드의 줄 순서를 위아래로 반전합니다 (1-2-3-4 ⇄ 4-3-2-1)">
+          <span class="switch-label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="m21 8-4-4-4 4"/><path d="M17 4v16"/>
+            </svg>
+            <span id="flip-fret-label">1, 2, 3, 4번 줄 (기본)</span>
+          </span>
+          <button type="button" role="switch" aria-checked="false" id="flip-fret-switch" class="shadcn-switch">
+            <span class="shadcn-switch-thumb"></span>
+          </button>
+        </label>
+
+        <!-- Tuning Toggle Button -->
+        <button id="low-g-toggle" class="btn btn-secondary" title="4번 줄을 1옥타브 낮은 Low-G로 전환">
+          High-G 튜닝
+        </button>
+
+        <!-- Volume Slider -->
+        <div class="slider-group">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+          <input type="range" id="volume-slider" min="0" max="100" value="85" title="마스터 볼륨">
+        </div>
+      </div>
+    </header>
+
+    <!-- Dashboard: Current Chord & Presets (Single-level Card) -->
+    <div class="dashboard-card">
+      <!-- Left: Current Chord Hero (Integrated, no nested border) -->
+      <div class="chord-section">
+        <span class="chord-hero-label">Current Chord</span>
+        <div id="chord-hero-name" class="chord-hero-name">Am7 / C6</div>
+        <div id="chord-hero-desc" class="chord-hero-desc">Open Strings</div>
+        <div class="chord-hero-keys">
+          <span>누른 키:</span>
+          <span id="active-keys-tag" class="shadcn-kbd">개방현</span>
+        </div>
+        <div class="chord-hero-strings">
+          <div class="string-pill">
+            <span class="s-title">1줄(A)</span>
+            <span id="string-note-badge-1" class="s-val">A4</span>
+          </div>
+          <div class="string-pill">
+            <span class="s-title">2줄(E)</span>
+            <span id="string-note-badge-2" class="s-val">E4</span>
+          </div>
+          <div class="string-pill">
+            <span class="s-title">3줄(C)</span>
+            <span id="string-note-badge-3" class="s-val">C4</span>
+          </div>
+          <div class="string-pill">
+            <span class="s-title">4줄(G)</span>
+            <span id="string-note-badge-4" class="s-val">G4</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Quick Chord Helper Chips (Clean, Code only) -->
+      <div class="presets-section">
+        <div class="presets-header">
+          <span class="presets-title">추천 코드 가이드</span>
+        </div>
+        <div class="presets-grid">
+          <button class="chord-chip" data-chord="C">C</button>
+          <button class="chord-chip" data-chord="G">G</button>
+          <button class="chord-chip" data-chord="Am">Am</button>
+          <button class="chord-chip" data-chord="F">F</button>
+          <button class="chord-chip" data-chord="Dm">Dm</button>
+          <button class="chord-chip" data-chord="Em">Em</button>
+          <button class="chord-chip" data-chord="C7">C7</button>
+          <button class="chord-chip" data-chord="G7">G7</button>
+          <button class="chord-chip" data-chord="E7">E7</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fretboard Instrument Container (Single-level Monolith Card) -->
+    <div class="fretboard-monolith">
+      <div class="fretboard-toolbar">
+        <span class="fretboard-heading">우쿨렐레 프렛보드</span>
+        <div class="legend-group">
+          <div class="legend-chip">
+            <span class="legend-indicator pressed"></span>
+            <span>운지 위치 (누른 키)</span>
+          </div>
+          <div class="legend-chip">
+            <span class="legend-indicator open"></span>
+            <span>개방현 (0 프렛)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ukulele-stage">
+        <!-- Headstock -->
+        <div class="headstock">
+          <div class="tuning-pegs">
+            <div class="tuning-peg"></div>
+            <div class="tuning-peg"></div>
+            <div class="tuning-peg"></div>
+            <div class="tuning-peg"></div>
+          </div>
+          <div class="headstock-brand">UKULELE</div>
+        </div>
+
+        <!-- Open Strings Bar (Nut Left: dynamically filled by JS) -->
+        <div class="open-strings-bar" id="open-strings-bar"></div>
+
+        <!-- Nut -->
+        <div class="fret-nut"></div>
+
+        <!-- Fretboard Neck (Frets 1-8 generated by JS) -->
+        <div class="fretboard-neck" id="fretboard-neck">
+          <!-- Inlay Dots (3rd, 5th, 7th frets) -->
+          <div class="inlay-dots-layer">
+            <div class="fret-inlay-dot" style="left: calc((100% / 8) * 2.5);"></div>
+            <div class="fret-inlay-dot" style="left: calc((100% / 8) * 4.5);"></div>
+            <div class="fret-inlay-dot" style="left: calc((100% / 8) * 6.5);"></div>
+          </div>
+
+          <!-- Physical Strings Layer (dynamically positioned by JS) -->
+          <div class="strings-layer"></div>
+        </div>
+
+        <!-- Right: Soundhole & Pluck Triggers -->
+        <div class="body-pluck-panel" title="사운드홀을 마우스로 위아래로 긁어 스트로크 연주가 가능합니다">
+          <div class="soundhole-arc"></div>
+          <div class="pluck-buttons-group"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stroke Action Bar (Single-level Card) -->
+    <div class="stroke-panel">
+      <button id="stroke-down-btn" class="stroke-action-btn downstroke">
+        <span id="stroke-down-label">다운 스트로크 ⬇️ (4줄 ➔ 1줄)</span>
+        <span class="shadcn-kbd">SPACE</span>
+      </button>
+      <button id="stroke-up-btn" class="stroke-action-btn upstroke">
+        <span id="stroke-up-label">업 스트로크 ⬆️ (1줄 ➔ 4줄)</span>
+        <span class="shadcn-kbd">SHIFT + SPACE</span>
+        <span style="font-size: 11px; color:var(--muted-foreground);">또는 <span class="shadcn-kbd">ENTER</span></span>
+      </button>
+    </div>
+  </div>
+
+  <script src="./ukulele.js?v=2.3"></script>
 </body>
-<script type="text/javascript" src="./ukulele.js"></script>
 </html>
